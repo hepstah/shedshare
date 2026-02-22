@@ -41,6 +41,14 @@ export function Login() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 p-8">
+      {!import.meta.env.DEV && (
+        <div className="w-full max-w-xs rounded-lg border bg-muted/50 px-4 py-3 text-center">
+          <p className="text-sm font-semibold">Early Access</p>
+          <p className="text-xs text-muted-foreground">
+            ShedShare is in early access. Sign in with an invite to get started.
+          </p>
+        </div>
+      )}
       <h1 className="text-2xl font-bold">Sign In</h1>
 
       <form onSubmit={(e) => void handleSubmit(e)} className="flex w-full max-w-xs flex-col gap-3">
