@@ -27,7 +27,21 @@ export function useAuth() {
   const signInWithApple = () =>
     supabase.auth.signInWithOAuth({ provider: 'apple' })
 
+  const signInWithEmail = (email: string, password: string) =>
+    supabase.auth.signInWithPassword({ email, password })
+
+  const signUpWithEmail = (email: string, password: string) =>
+    supabase.auth.signUp({ email, password })
+
   const signOut = () => supabase.auth.signOut()
 
-  return { user, loading, signInWithGoogle, signInWithApple, signOut }
+  return {
+    user,
+    loading,
+    signInWithGoogle,
+    signInWithApple,
+    signInWithEmail,
+    signUpWithEmail,
+    signOut,
+  }
 }
