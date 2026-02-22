@@ -31,6 +31,11 @@
   --color-input: hsl(240 5.9% 90%);
   --color-ring: hsl(240 5.9% 10%);
 
+  --color-nuts: hsl(38 92% 50%);
+  --color-nuts-foreground: hsl(26 83% 14%);
+  --color-available: hsl(142 71% 45%);
+  --color-available-foreground: hsl(144 61% 10%);
+
   --radius-sm: 0.25rem;
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
