@@ -3,7 +3,7 @@ import {
   Package,
   Search,
   ArrowLeftRight,
-  Squirrel,
+  Nut,
   Bell,
 } from 'lucide-react'
 import {
@@ -39,7 +39,7 @@ const features = [
       'Send borrow requests with dates. Owners approve, you pick up. Simple handoff flow.',
   },
   {
-    icon: Squirrel,
+    icon: Nut,
     title: 'Nuts Economy',
     description:
       'A fair lending currency. Earn Nuts for lending, spend them to borrow. Keeps things balanced.',

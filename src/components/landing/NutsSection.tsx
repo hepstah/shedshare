@@ -30,7 +30,7 @@ export function NutsSection() {
       <div className="container mx-auto max-w-5xl">
         <div className="mb-12 text-center">
           <h2 className="text-3xl font-bold md:text-4xl">
-            🥜 The Nuts Economy
+            🔩 The Nuts Economy
           </h2>
           <p className="mt-3 text-muted-foreground">
             A simple, fair currency that keeps sharing balanced
