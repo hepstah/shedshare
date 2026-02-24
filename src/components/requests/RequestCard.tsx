@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Calendar, Nut } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { RequestActions } from './RequestActions'
 import type { BorrowRequestWithDetails } from '@/hooks/useBorrowRequests'
 
@@ -14,6 +15,27 @@ const statusConfig: Record<string, { label: string; variant: 'default' | 'second
   cancelled: { label: 'Cancelled', variant: 'destructive' },
 }
 
+function timeAgo(dateStr: string) {
+  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
+  if (seconds < 60) return 'just now'
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  if (days < 7) return `${days}d ago`
+  return new Date(dateStr).toLocaleDateString()
+}
+
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
+
 interface RequestCardProps {
   request: BorrowRequestWithDetails
   role: 'lender' | 'borrower'
@@ -23,21 +45,28 @@ export function RequestCard({ request, role }: RequestCardProps) {
   const config = statusConfig[request.status] ?? { label: request.status, variant: 'outline' as const }
   const otherPerson = role === 'lender' ? request.borrower : request.lender
   const otherLabel = role === 'lender' ? 'Borrower' : 'Lender'
+  const otherName = otherPerson?.display_name ?? 'Unknown'
 
   return (
     <Card>
-      <CardContent className="space-y-3 p-4">
+      <CardContent className="space-y-2.5 p-4">
         <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <Link
-              to={`/tools/${request.tool_id}`}
-              className="font-semibold hover:underline"
-            >
-              {request.tools?.name ?? 'Unknown tool'}
-            </Link>
-            <p className="text-sm text-muted-foreground">
-              {otherLabel}: {otherPerson?.display_name ?? 'Unknown'}
-            </p>
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Avatar className="h-8 w-8 shrink-0">
+              <AvatarImage src={otherPerson?.avatar_url ?? undefined} alt={otherName} />
+              <AvatarFallback className="text-xs">{getInitials(otherName)}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <Link
+                to={`/tools/${request.tool_id}`}
+                className="font-semibold hover:underline"
+              >
+                {request.tools?.name ?? 'Unknown tool'}
+              </Link>
+              <p className="text-sm text-muted-foreground">
+                {otherLabel}: {otherName}
+              </p>
+            </div>
           </div>
           <Badge variant={config.variant}>{config.label}</Badge>
         </div>
@@ -57,8 +86,8 @@ export function RequestCard({ request, role }: RequestCardProps) {
               Due: {new Date(request.due_date).toLocaleDateString()}
             </span>
           )}
-          <span>
-            {new Date(request.created_at).toLocaleDateString()}
+          <span title={new Date(request.updated_at).toLocaleString()}>
+            {timeAgo(request.updated_at)}
           </span>
         </div>
 
