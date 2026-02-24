@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Navigate, useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useSearchParams } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 
@@ -54,6 +55,14 @@ export function Login() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 p-8">
+      <Link
+        to="/"
+        className="absolute left-4 top-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Home
+      </Link>
+
       {!import.meta.env.DEV && (
         <div className="w-full max-w-xs rounded-lg border bg-muted/50 px-4 py-3 text-center">
           <p className="text-sm font-semibold">Early Access</p>
