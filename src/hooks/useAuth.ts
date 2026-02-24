@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import type { User } from '@supabase/supabase-js'
+import * as Sentry from '@sentry/react'
 import { supabase } from '@/lib/supabase'
 
 async function ensureProfile() {
   const { error } = await supabase.rpc('ensure_profile')
-  if (error) console.error('Failed to ensure profile:', error)
+  if (error) Sentry.captureException(error, { tags: { context: 'ensure_profile' } })
 }
 
 export function useAuth() {
@@ -15,7 +16,10 @@ export function useAuth() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       const u = session?.user ?? null
       setUser(u)
-      if (u) void ensureProfile()
+      if (u) {
+        Sentry.setUser({ id: u.id, email: u.email })
+        void ensureProfile()
+      }
       setLoading(false)
     })
 
@@ -24,7 +28,12 @@ export function useAuth() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       const u = session?.user ?? null
       setUser(u)
-      if (u) void ensureProfile()
+      if (u) {
+        Sentry.setUser({ id: u.id, email: u.email })
+        void ensureProfile()
+      } else {
+        Sentry.setUser(null)
+      }
     })
 
     return () => subscription.unsubscribe()
