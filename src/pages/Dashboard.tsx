@@ -1,22 +1,70 @@
 import { Link } from 'react-router-dom'
-import { Wrench, Users, ArrowLeftRight, Nut, Plus, Search } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Wrench,
+  Users,
+  ArrowLeftRight,
+  Nut,
+  Plus,
+  Search,
+  ChevronRight,
+  Clock,
+  AlertCircle,
+} from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { ToolCard } from '@/components/tools/ToolCard'
+import { CircleCard } from '@/components/circles/CircleCard'
 import { useAuth } from '@/hooks/useAuth'
+import { useProfile } from '@/hooks/useProfile'
 import { useMyTools } from '@/hooks/useTools'
 import { useCircles } from '@/hooks/useCircles'
 import { useIncomingRequests, useOutgoingRequests } from '@/hooks/useBorrowRequests'
 import { useNutsBalance } from '@/hooks/useNuts'
+import type { BorrowRequestWithDetails } from '@/hooks/useBorrowRequests'
+
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
+
+function timeAgo(dateStr: string) {
+  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
+  if (seconds < 60) return 'just now'
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  if (days < 7) return `${days}d ago`
+  return new Date(dateStr).toLocaleDateString()
+}
+
+const statusLabels: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
+  pending: { label: 'Pending', variant: 'outline' },
+  approved: { label: 'Approved', variant: 'default' },
+  declined: { label: 'Declined', variant: 'destructive' },
+  handed_off: { label: 'Handed Off', variant: 'secondary' },
+  returned: { label: 'Returned', variant: 'secondary' },
+  cancelled: { label: 'Cancelled', variant: 'destructive' },
+}
 
 export function Dashboard() {
   const { user } = useAuth()
+  const { data: profile } = useProfile()
   const { data: tools } = useMyTools()
   const { data: circles } = useCircles()
   const { data: incoming } = useIncomingRequests()
   const { data: outgoing } = useOutgoingRequests()
   const { data: nutsBalance } = useNutsBalance()
 
-  const displayName = user?.user_metadata?.full_name
+  const displayName = profile?.display_name
+    ?? user?.user_metadata?.full_name
     ?? user?.user_metadata?.name
     ?? user?.email?.split('@')[0]
     ?? 'there'
@@ -24,124 +72,283 @@ export function Dashboard() {
   const toolCount = tools?.length ?? 0
   const circleCount = circles?.length ?? 0
   const pendingIncoming = incoming?.filter((r) => r.status === 'pending').length ?? 0
-  const activeOutgoing = outgoing?.filter((r) => ['pending', 'approved', 'handed_off'].includes(r.status)).length ?? 0
   const lentOut = tools?.filter((t) => t.status === 'lent_out').length ?? 0
 
+  // Merge & sort recent activity
+  const allRequests: (BorrowRequestWithDetails & { direction: 'in' | 'out' })[] = [
+    ...(incoming ?? []).map((r) => ({ ...r, direction: 'in' as const })),
+    ...(outgoing ?? []).map((r) => ({ ...r, direction: 'out' as const })),
+  ]
+    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+    .slice(0, 5)
+
+  const stats = [
+    {
+      label: 'My Tools',
+      value: toolCount,
+      icon: Wrench,
+      color: 'bg-blue-100 text-blue-700',
+      link: '/tools',
+    },
+    {
+      label: 'Circles',
+      value: circleCount,
+      icon: Users,
+      color: 'bg-green-100 text-green-700',
+      link: '/circles',
+    },
+    {
+      label: 'Lent Out',
+      value: lentOut,
+      icon: ArrowLeftRight,
+      color: 'bg-amber-100 text-amber-700',
+      link: '/tools',
+    },
+    {
+      label: 'Nuts',
+      value: nutsBalance ?? 0,
+      icon: Nut,
+      color: 'bg-orange-100 text-orange-700',
+      link: '/nuts',
+    },
+  ]
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Hey, {displayName}!</h1>
-        <p className="text-muted-foreground">Here's what's happening in your shed.</p>
+    <div className="space-y-8">
+      {/* Welcome header */}
+      <div className="flex items-center gap-4">
+        <Avatar size="lg">
+          {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={displayName} />}
+          <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
+        </Avatar>
+        <div>
+          <h1 className="text-2xl font-bold">Hey, {displayName}!</h1>
+          <p className="text-sm text-muted-foreground">
+            Here's what's happening in your shed.
+          </p>
+        </div>
       </div>
 
-      {/* Stats grid */}
+      {/* Stats row */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Card>
-          <CardContent className="flex items-center gap-3 p-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-              <Wrench className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{toolCount}</p>
-              <p className="text-xs text-muted-foreground">My Tools</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="flex items-center gap-3 p-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-              <Users className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{circleCount}</p>
-              <p className="text-xs text-muted-foreground">Circles</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="flex items-center gap-3 p-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-              <ArrowLeftRight className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{lentOut}</p>
-              <p className="text-xs text-muted-foreground">Lent Out</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="flex items-center gap-3 p-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-              <Nut className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{nutsBalance ?? 0}</p>
-              <p className="text-xs text-muted-foreground">Nuts</p>
-            </div>
-          </CardContent>
-        </Card>
+        {stats.map((stat) => (
+          <Link key={stat.label} to={stat.link}>
+            <Card className="transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
+              <CardContent className="flex items-center gap-3 p-4">
+                <div
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${stat.color}`}
+                >
+                  <stat.icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-3xl font-bold leading-none">{stat.value}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{stat.label}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
       </div>
 
       {/* Action needed */}
       {pendingIncoming > 0 && (
-        <Card className="border-primary/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Action Needed</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <p className="text-sm text-muted-foreground">
-              You have {pendingIncoming} pending borrow request{pendingIncoming !== 1 ? 's' : ''} waiting for your response.
-            </p>
+        <Card className="border-l-4 border-l-nuts">
+          <CardContent className="flex items-center gap-4 p-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+              <AlertCircle className="h-5 w-5" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold">
+                {pendingIncoming} pending request{pendingIncoming !== 1 ? 's' : ''}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Someone wants to borrow your tools
+              </p>
+            </div>
             <Button asChild size="sm">
-              <Link to="/requests">View Requests</Link>
+              <Link to="/requests">
+                Review
+                <ChevronRight className="ml-1 h-4 w-4" />
+              </Link>
             </Button>
           </CardContent>
         </Card>
       )}
 
-      {activeOutgoing > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Your Borrows</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <p className="text-sm text-muted-foreground">
-              You have {activeOutgoing} active borrow request{activeOutgoing !== 1 ? 's' : ''}.
-            </p>
-            <Button asChild variant="outline" size="sm">
-              <Link to="/requests">View Requests</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+      {/* Recent activity */}
+      <section>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Recent Activity</h2>
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/requests" className="text-muted-foreground">
+              View all
+              <ChevronRight className="ml-1 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+
+        {allRequests.length > 0 ? (
+          <Card>
+            <CardContent className="divide-y p-0">
+              {allRequests.map((req) => {
+                const person =
+                  req.direction === 'in' ? req.borrower : req.lender
+                const personName = person?.display_name ?? 'Someone'
+                const toolName = req.tools?.name ?? 'a tool'
+                const statusInfo = statusLabels[req.status] ?? {
+                  label: req.status,
+                  variant: 'outline' as const,
+                }
+                const action =
+                  req.direction === 'in'
+                    ? `${personName} wants to borrow`
+                    : `You requested`
+
+                return (
+                  <Link
+                    key={req.id}
+                    to="/requests"
+                    className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
+                  >
+                    <Avatar size="sm">
+                      {person?.avatar_url && (
+                        <AvatarImage src={person.avatar_url} alt={personName} />
+                      )}
+                      <AvatarFallback className="text-[10px]">
+                        {getInitials(personName)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm">
+                        <span className="font-medium">{action}</span>{' '}
+                        <span className="text-muted-foreground">{toolName}</span>
+                      </p>
+                    </div>
+                    <Badge variant={statusInfo.variant} className="shrink-0">
+                      {statusInfo.label}
+                    </Badge>
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {timeAgo(req.updated_at)}
+                    </span>
+                  </Link>
+                )
+              })}
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardContent className="flex flex-col items-center gap-2 py-8 text-center">
+              <Clock className="h-8 w-8 text-muted-foreground/40" />
+              <p className="text-sm text-muted-foreground">
+                No activity yet — lend or borrow a tool to get started!
+              </p>
+            </CardContent>
+          </Card>
+        )}
+      </section>
+
+      {/* Your tools preview */}
+      <section>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Your Tools</h2>
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/tools" className="text-muted-foreground">
+              View all
+              <ChevronRight className="ml-1 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+
+        {tools && tools.length > 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {tools.slice(0, 3).map((tool) => (
+              <ToolCard key={tool.id} tool={tool} />
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
+              <Wrench className="h-8 w-8 text-muted-foreground/40" />
+              <div>
+                <p className="font-medium">No tools yet</p>
+                <p className="text-sm text-muted-foreground">
+                  Share your first tool with your circles
+                </p>
+              </div>
+              <Button asChild size="sm">
+                <Link to="/tools/add">
+                  <Plus className="mr-1 h-4 w-4" />
+                  Add your first tool
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </section>
+
+      {/* Your circles preview */}
+      <section>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Your Circles</h2>
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/circles" className="text-muted-foreground">
+              View all
+              <ChevronRight className="ml-1 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+
+        {circles && circles.length > 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {circles.slice(0, 3).map((circle) => (
+              <CircleCard key={circle.id} circle={circle} />
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
+              <Users className="h-8 w-8 text-muted-foreground/40" />
+              <div>
+                <p className="font-medium">No circles yet</p>
+                <p className="text-sm text-muted-foreground">
+                  Create or join a circle to start sharing
+                </p>
+              </div>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/circles">
+                  <Users className="mr-1 h-4 w-4" />
+                  Create or join a circle
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </section>
 
       {/* Quick actions */}
-      <div>
+      <section>
         <h2 className="mb-3 text-lg font-semibold">Quick Actions</h2>
-        <div className="flex flex-wrap gap-3">
-          <Button asChild variant="outline">
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline" className="rounded-full">
             <Link to="/tools/add">
-              <Plus className="h-4 w-4" />
+              <Plus className="mr-1 h-4 w-4" />
               Add a Tool
             </Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="rounded-full">
             <Link to="/search">
-              <Search className="h-4 w-4" />
+              <Search className="mr-1 h-4 w-4" />
               Find a Tool
             </Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="rounded-full">
             <Link to="/circles">
-              <Users className="h-4 w-4" />
+              <Users className="mr-1 h-4 w-4" />
               My Circles
             </Link>
           </Button>
         </div>
-      </div>
+      </section>
     </div>
   )
 }
