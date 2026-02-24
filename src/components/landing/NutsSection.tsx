@@ -28,7 +28,7 @@ export function NutsSection() {
         {/* Image column */}
         <div className="animate-fade-up">
           <img
-            src="https://images.unsplash.com/photo-1530124566582-a45a7c94571d?w=700&auto=format&fit=crop&q=80"
+            src="https://images.unsplash.com/photo-1581783898377-1c85bf937427?w=700&auto=format&fit=crop&q=80"
             alt="Organized tools on a workshop wall"
             className="w-full rounded-2xl shadow-xl object-cover aspect-[4/3]"
           />
