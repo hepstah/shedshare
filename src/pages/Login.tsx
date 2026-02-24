@@ -3,13 +3,20 @@ import { Navigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 
-const DEV_EMAIL = 'admin@shedshare.io'
-const DEV_PASSWORD = 'admin123'
+function getSafeRedirect(raw: string | null): string {
+  const fallback = '/dashboard'
+  if (!raw) return fallback
+  // Must start with / and not be a protocol-relative URL (//)
+  if (!raw.startsWith('/') || raw.startsWith('//')) return fallback
+  // Block embedded protocol schemes
+  if (/[a-z]:/i.test(raw)) return fallback
+  return raw
+}
 
 export function Login() {
   const { user, signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail } = useAuth()
   const [searchParams] = useSearchParams()
-  const redirectTo = searchParams.get('redirect') || '/dashboard'
+  const redirectTo = getSafeRedirect(searchParams.get('redirect'))
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -31,10 +38,16 @@ export function Login() {
 
   const handleDevLogin = async () => {
     setError('')
+    const devEmail = import.meta.env.VITE_DEV_EMAIL
+    const devPassword = import.meta.env.VITE_DEV_PASSWORD
+    if (!devEmail || !devPassword) {
+      setError('Dev credentials not configured in environment')
+      return
+    }
     // Try sign in first, sign up if it fails
-    const { error: signInError } = await signInWithEmail(DEV_EMAIL, DEV_PASSWORD)
+    const { error: signInError } = await signInWithEmail(devEmail, devPassword)
     if (signInError) {
-      const { error: signUpError } = await signUpWithEmail(DEV_EMAIL, DEV_PASSWORD)
+      const { error: signUpError } = await signUpWithEmail(devEmail, devPassword)
       if (signUpError) setError(signUpError.message)
     }
   }
@@ -115,7 +128,7 @@ export function Login() {
             className="w-full max-w-xs"
             onClick={() => void handleDevLogin()}
           >
-            Dev Login (admin@shedshare.io)
+            Dev Login
           </Button>
         </>
       )}

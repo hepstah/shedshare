@@ -5,8 +5,12 @@ node_modules/
 dist/
 
 # Environment
+.env
 .env.local
 .env.*.local
+
+# Claude Code
+.claude/
 
 # IDE
 .vscode/
@@ -20,3 +24,4 @@ Thumbs.db
 supabase/.temp/
 
 ARCHITECTURE.md
+.vercel
