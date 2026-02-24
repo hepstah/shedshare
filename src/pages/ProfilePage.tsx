@@ -1,35 +1,72 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, Nut } from 'lucide-react'
+import { Camera, LogOut, Nut } from 'lucide-react'
 import { toast } from 'sonner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { NutsHistory } from '@/components/nuts/NutsHistory'
 import { useAuth } from '@/hooks/useAuth'
-import { useProfile, useUpdateProfile } from '@/hooks/useProfile'
+import { useProfile, useUpdateProfile, useUploadAvatar } from '@/hooks/useProfile'
 import { useNutsBalance, useNutsTransactions } from '@/hooks/useNuts'
 import type { NotificationPrefs } from '@/types'
+
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
 
 export function ProfilePage() {
   const navigate = useNavigate()
   const { signOut } = useAuth()
-  const { data: profile, isLoading } = useProfile()
+  const { data: profile, isLoading, error } = useProfile()
   const updateProfile = useUpdateProfile()
+  const uploadAvatar = useUploadAvatar()
   const { data: nutsBalance } = useNutsBalance()
   const { data: transactions } = useNutsTransactions()
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [displayName, setDisplayName] = useState('')
   const [phone, setPhone] = useState('')
   const [nameInit, setNameInit] = useState(false)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
   // Initialize form state once profile loads
   if (profile && !nameInit) {
     setDisplayName(profile.display_name)
     setPhone(profile.phone ?? '')
     setNameInit(true)
+  }
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const previousPreview = avatarPreview ?? profile?.avatar_url ?? null
+
+    // Show local preview immediately
+    setAvatarPreview(URL.createObjectURL(file))
+
+    try {
+      const url = await uploadAvatar.mutateAsync(file)
+      setAvatarPreview(url)
+      await updateProfile.mutateAsync({ avatar_url: url })
+      toast.success('Avatar updated!')
+    } catch (err) {
+      setAvatarPreview(previousPreview) // revert preview
+      toast.error(err instanceof Error ? err.message : 'Failed to upload avatar.')
+    }
+
+    // Reset input so same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   const handleSaveProfile = () => {
@@ -68,12 +105,78 @@ export function ProfilePage() {
   }
 
   if (isLoading) {
-    return <p className="text-muted-foreground">Loading profile...</p>
+    return (
+      <div className="space-y-6">
+        {/* Header skeleton */}
+        <div className="flex items-center gap-4">
+          <div className="h-20 w-20 animate-pulse rounded-full bg-muted" />
+          <div className="space-y-2">
+            <div className="h-5 w-40 animate-pulse rounded bg-muted" />
+            <div className="h-4 w-56 animate-pulse rounded bg-muted" />
+            <div className="h-3 w-32 animate-pulse rounded bg-muted" />
+          </div>
+        </div>
+        {/* Card skeletons */}
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-40 animate-pulse rounded-lg border bg-muted" />
+        ))}
+      </div>
+    )
   }
+
+  if (error) {
+    return (
+      <p className="text-sm text-destructive">
+        Failed to load profile: {error.message}
+      </p>
+    )
+  }
+
+  const displayedAvatar = avatarPreview ?? profile?.avatar_url ?? null
+  const memberSince = profile
+    ? new Date(profile.created_at).toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'long',
+      })
+    : null
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Profile & Settings</h1>
+      {/* Header with avatar */}
+      <div className="flex items-center gap-4">
+        <div className="relative">
+          <Avatar className="h-20 w-20 text-2xl">
+            {displayedAvatar && <AvatarImage src={displayedAvatar} alt={profile?.display_name} />}
+            <AvatarFallback className="text-lg">
+              {profile ? getInitials(profile.display_name) : '?'}
+            </AvatarFallback>
+          </Avatar>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+          >
+            <Camera className="h-4 w-4" />
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleAvatarChange}
+          />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold">{profile?.display_name}</h1>
+          <p className="text-sm text-muted-foreground">{profile?.email}</p>
+          {memberSince && (
+            <p className="text-xs text-muted-foreground">Member since {memberSince}</p>
+          )}
+          {uploadAvatar.isPending && (
+            <p className="text-xs text-muted-foreground">Uploading...</p>
+          )}
+        </div>
+      </div>
 
       {/* Profile info */}
       <Card>
@@ -82,9 +185,7 @@ export function ProfilePage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="display-name" className="text-sm font-medium">
-              Display Name
-            </label>
+            <Label htmlFor="display-name">Display Name</Label>
             <Input
               id="display-name"
               value={displayName}
@@ -93,9 +194,7 @@ export function ProfilePage() {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="phone" className="text-sm font-medium">
-              Phone (for SMS notifications)
-            </label>
+            <Label htmlFor="phone">Phone (for SMS notifications)</Label>
             <Input
               id="phone"
               type="tel"
@@ -106,7 +205,7 @@ export function ProfilePage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Email</label>
+            <Label>Email</Label>
             <p className="text-sm text-muted-foreground">{profile?.email}</p>
           </div>
 

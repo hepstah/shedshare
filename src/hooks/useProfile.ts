@@ -2,6 +2,42 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import type { Profile, NotificationPrefs } from '@/types'
 
+export function useUploadAvatar() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (file: File): Promise<string> => {
+      if (!file.type.startsWith('image/')) {
+        throw new Error('Please select an image file.')
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('Image must be under 5 MB.')
+      }
+
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
+      const ext = file.name.split('.').pop() ?? 'jpg'
+      const path = `${user.id}/${crypto.randomUUID()}.${ext}`
+
+      const { error } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true })
+
+      if (error) throw error
+
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(path)
+
+      return urlData.publicUrl
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['profile'] })
+    },
+  })
+}
+
 export function useProfile() {
   return useQuery({
     queryKey: ['profile'],
