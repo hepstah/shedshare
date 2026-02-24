@@ -5,14 +5,17 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/hooks/useAuth'
 import { useCircle, useLeaveCircle } from '@/hooks/useCircles'
+import { useCircleTools } from '@/hooks/useTools'
 import { CircleMembers } from '@/components/circles/CircleMembers'
 import { InviteCodeShare } from '@/components/circles/InviteCodeShare'
+import { ToolGrid } from '@/components/tools/ToolGrid'
 
 export function CircleDetailPage() {
   const { circleId } = useParams<{ circleId: string }>()
   const navigate = useNavigate()
   const { user } = useAuth()
   const { circle, members, isLoading, error } = useCircle(circleId)
+  const { data: circleTools, isLoading: toolsLoading } = useCircleTools(circleId)
   const leaveCircle = useLeaveCircle()
 
   const currentMember = members.find((m) => m.user_id === user?.id)
@@ -71,6 +74,21 @@ export function CircleDetailPage() {
       <Separator />
 
       <InviteCodeShare inviteCode={circle.invite_code} />
+
+      <Separator />
+
+      <div className="space-y-3">
+        <h2 className="text-lg font-semibold">Tools in this Circle</h2>
+        {toolsLoading && (
+          <p className="text-sm text-muted-foreground">Loading tools...</p>
+        )}
+        {!toolsLoading && circleTools && circleTools.length === 0 && (
+          <p className="text-sm text-muted-foreground">
+            No tools listed in this circle yet.
+          </p>
+        )}
+        {circleTools && circleTools.length > 0 && <ToolGrid tools={circleTools} />}
+      </div>
 
       <Separator />
 

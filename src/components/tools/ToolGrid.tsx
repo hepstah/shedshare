@@ -1,8 +1,8 @@
-import type { Tool } from '@/types'
+import type { ToolWithCategory } from '@/types'
 import { ToolCard } from './ToolCard'
 
 interface ToolGridProps {
-  tools: Tool[]
+  tools: ToolWithCategory[]
 }
 
 export function ToolGrid({ tools }: ToolGridProps) {

@@ -7,6 +7,7 @@ import { Dashboard } from '@/pages/Dashboard'
 import { MyTools } from '@/pages/MyTools'
 import { AddTool } from '@/pages/AddTool'
 import { ToolDetailPage } from '@/pages/ToolDetailPage'
+import { EditTool } from '@/pages/EditTool'
 import { CirclesPage } from '@/pages/CirclesPage'
 import { CircleDetailPage } from '@/pages/CircleDetailPage'
 import { SearchPage } from '@/pages/SearchPage'
@@ -59,6 +60,16 @@ export function App() {
           <AuthGuard>
             <AppShell>
               <ToolDetailPage />
+            </AppShell>
+          </AuthGuard>
+        }
+      />
+      <Route
+        path="/tools/:toolId/edit"
+        element={
+          <AuthGuard>
+            <AppShell>
+              <EditTool />
             </AppShell>
           </AuthGuard>
         }

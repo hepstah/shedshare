@@ -132,3 +132,14 @@ export interface Notification {
   sms_sent: boolean
   created_at: string
 }
+
+// Extended tool types for views
+export type ToolWithCategory = Tool & {
+  tool_categories: ToolCategory | null
+}
+
+export type ToolWithDetails = Tool & {
+  tool_categories: ToolCategory | null
+  profiles: Pick<Profile, 'id' | 'display_name' | 'avatar_url'>
+  tool_circle_listings: ToolCircleListing[]
+}
