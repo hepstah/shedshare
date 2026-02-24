@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import type {
+  Tool,
   ToolCategory,
   ToolWithCategory,
   ToolWithDetails,
@@ -140,37 +141,17 @@ export function useCreateTool() {
 
   return useMutation({
     mutationFn: async (input: CreateToolInput) => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const { data, error } = await supabase.rpc('create_tool_with_listings', {
+        p_name: input.name,
+        p_description: input.description ?? null,
+        p_category_id: input.category_id ?? null,
+        p_photo_url: input.photo_url ?? null,
+        p_nuts_cost: input.nuts_cost,
+        p_circle_ids: input.circle_ids,
+      })
 
-      const { data: tool, error: toolError } = await supabase
-        .from('tools')
-        .insert({
-          owner_id: user.id,
-          name: input.name,
-          description: input.description ?? null,
-          category_id: input.category_id ?? null,
-          photo_url: input.photo_url ?? null,
-          nuts_cost: input.nuts_cost,
-        })
-        .select()
-        .single()
-
-      if (toolError) throw toolError
-
-      if (input.circle_ids.length > 0) {
-        const listings = input.circle_ids.map((circle_id) => ({
-          tool_id: tool.id,
-          circle_id,
-        }))
-        const { error: listingError } = await supabase
-          .from('tool_circle_listings')
-          .insert(listings)
-
-        if (listingError) throw listingError
-      }
-
-      return tool
+      if (error) throw error
+      return data as unknown as Tool
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['my-tools'] })
@@ -194,43 +175,18 @@ export function useUpdateTool() {
 
   return useMutation({
     mutationFn: async (input: UpdateToolInput) => {
-      const { data: tool, error: toolError } = await supabase
-        .from('tools')
-        .update({
-          name: input.name,
-          description: input.description ?? null,
-          category_id: input.category_id ?? null,
-          photo_url: input.photo_url ?? null,
-          nuts_cost: input.nuts_cost,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', input.id)
-        .select()
-        .single()
+      const { data, error } = await supabase.rpc('update_tool_with_listings', {
+        p_tool_id: input.id,
+        p_name: input.name,
+        p_description: input.description ?? null,
+        p_category_id: input.category_id ?? null,
+        p_photo_url: input.photo_url ?? null,
+        p_nuts_cost: input.nuts_cost,
+        p_circle_ids: input.circle_ids,
+      })
 
-      if (toolError) throw toolError
-
-      // Re-sync circle listings: delete all, re-insert
-      const { error: deleteError } = await supabase
-        .from('tool_circle_listings')
-        .delete()
-        .eq('tool_id', input.id)
-
-      if (deleteError) throw deleteError
-
-      if (input.circle_ids.length > 0) {
-        const listings = input.circle_ids.map((circle_id) => ({
-          tool_id: input.id,
-          circle_id,
-        }))
-        const { error: listingError } = await supabase
-          .from('tool_circle_listings')
-          .insert(listings)
-
-        if (listingError) throw listingError
-      }
-
-      return tool
+      if (error) throw error
+      return data as unknown as Tool
     },
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['my-tools'] })
