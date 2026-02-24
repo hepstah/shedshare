@@ -14,6 +14,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { ActivityHeatmap } from '@/components/dashboard/ActivityHeatmap'
 import { ToolCard } from '@/components/tools/ToolCard'
 import { CircleCard } from '@/components/circles/CircleCard'
 import { useAuth } from '@/hooks/useAuth'
@@ -149,6 +150,9 @@ export function Dashboard() {
           </Link>
         ))}
       </div>
+
+      {/* Activity heatmap */}
+      <ActivityHeatmap />
 
       {/* Action needed */}
       {pendingIncoming > 0 && (
