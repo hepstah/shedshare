@@ -15,20 +15,20 @@
   --color-primary: hsl(240 5.9% 10%);
   --color-primary-foreground: hsl(0 0% 98%);
 
-  --color-secondary: hsl(240 4.8% 95.9%);
+  --color-secondary: hsl(30 10% 95.9%);
   --color-secondary-foreground: hsl(240 5.9% 10%);
 
-  --color-muted: hsl(240 4.8% 95.9%);
-  --color-muted-foreground: hsl(240 3.8% 46.1%);
+  --color-muted: hsl(30 8% 95.9%);
+  --color-muted-foreground: hsl(30 5% 44%);
 
-  --color-accent: hsl(240 4.8% 95.9%);
+  --color-accent: hsl(30 8% 95.9%);
   --color-accent-foreground: hsl(240 5.9% 10%);
 
   --color-destructive: hsl(0 84.2% 60.2%);
   --color-destructive-foreground: hsl(0 0% 98%);
 
-  --color-border: hsl(240 5.9% 90%);
-  --color-input: hsl(240 5.9% 90%);
+  --color-border: hsl(30 8% 90%);
+  --color-input: hsl(30 8% 90%);
   --color-ring: hsl(240 5.9% 10%);
 
   --color-nuts: hsl(38 92% 50%);
@@ -40,10 +40,48 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --radius: 0.5rem;
+  --radius: 0.75rem;
+
+  --animate-fade-up: fade-up 0.6s ease-out both;
+  --animate-fade-in: fade-in 0.5s ease-out both;
+  --animate-scale-in: scale-in 0.4s ease-out both;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   * {
     @apply border-border;
   }

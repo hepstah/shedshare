@@ -1,11 +1,5 @@
 import { Users, Wrench, Search, Squirrel } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card'
 
 const steps = [
   {
@@ -36,30 +30,41 @@ const steps = [
 
 export function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="px-4 py-20">
-      <div className="container mx-auto max-w-5xl">
-        <div className="mb-12 text-center">
-          <h2 className="text-3xl font-bold md:text-4xl">
-            🛠️ How It Works
-          </h2>
+    <section id="how-it-works" className="px-4 py-24">
+      <div className="container mx-auto max-w-4xl">
+        <div className="mb-16 text-center">
+          <Badge variant="outline" className="mb-4">
+            4 Simple Steps
+          </Badge>
+          <h2 className="text-3xl font-bold md:text-4xl">How It Works</h2>
           <p className="mt-3 text-muted-foreground">
             Four steps to sharing smarter
           </p>
         </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div className="relative flex flex-col items-center gap-12 md:gap-16">
+          {/* Connecting line (desktop) */}
+          <div className="absolute left-1/2 top-6 hidden h-[calc(100%-48px)] w-px -translate-x-1/2 border-l-2 border-dashed border-border md:block" />
+
           {steps.map((step, i) => (
-            <Card key={step.title} className="relative text-center">
-              <CardHeader>
-                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  {i + 1}
-                </Badge>
-                <div className="mx-auto mt-2 flex size-12 items-center justify-center rounded-full bg-secondary">
-                  <step.icon className="size-6 text-primary" />
-                </div>
-                <CardTitle className="text-base">{step.title}</CardTitle>
-                <CardDescription>{step.description}</CardDescription>
-              </CardHeader>
-            </Card>
+            <div
+              key={step.title}
+              className="relative flex w-full max-w-lg flex-col items-center gap-4 text-center animate-fade-up"
+              style={{ animationDelay: `${i * 100}ms` }}
+            >
+              {/* Step number circle */}
+              <div className="relative z-10 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground text-lg font-bold shadow-md">
+                {i + 1}
+              </div>
+              {/* Icon */}
+              <div className="flex size-10 items-center justify-center rounded-full bg-secondary">
+                <step.icon className="size-5 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold">{step.title}</h3>
+              <p className="text-sm text-muted-foreground max-w-xs">
+                {step.description}
+              </p>
+            </div>
           ))}
         </div>
       </div>

@@ -1,53 +1,73 @@
 import { Badge } from '@/components/ui/badge'
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card'
 
 const items = [
   {
     label: 'Sign Up Bonus',
     amount: '+10',
     description: 'Every new member starts with 10 Nuts — enough to borrow right away.',
+    positive: true,
   },
   {
     label: 'Lend a Tool',
     amount: '+1',
     description: 'Each time someone returns your tool, you earn a Nut. The more you share, the more you earn.',
+    positive: true,
   },
   {
     label: 'Borrow a Tool',
     amount: '-1',
     description: 'Spending a Nut to borrow keeps things fair. No free-riders, no awkward IOUs.',
+    positive: false,
   },
 ]
 
 export function NutsSection() {
   return (
-    <section className="bg-nuts/5 px-4 py-20">
-      <div className="container mx-auto max-w-5xl">
-        <div className="mb-12 text-center">
-          <h2 className="text-3xl font-bold md:text-4xl">
-            🔩 The Nuts Economy
-          </h2>
-          <p className="mt-3 text-muted-foreground">
-            A simple, fair currency that keeps sharing balanced
-          </p>
+    <section className="bg-gradient-to-br from-nuts/5 via-background to-nuts/5 px-4 py-24">
+      <div className="container mx-auto grid max-w-5xl items-center gap-12 lg:grid-cols-2">
+        {/* Image column */}
+        <div className="animate-fade-up">
+          <img
+            src="https://images.unsplash.com/photo-1530124566582-a45a7c94571d?w=700&auto=format&fit=crop&q=80"
+            alt="Organized tools on a workshop wall"
+            className="w-full rounded-2xl shadow-xl object-cover aspect-[4/3]"
+          />
         </div>
-        <div className="grid gap-6 sm:grid-cols-3">
-          {items.map((item) => (
-            <Card key={item.label} className="text-center">
-              <CardHeader>
-                <Badge className="mx-auto bg-nuts text-nuts-foreground">
-                  {item.amount} Nut{item.amount !== '-1' && item.amount !== '+1' ? 's' : ''}
-                </Badge>
-                <CardTitle className="text-base">{item.label}</CardTitle>
-                <CardDescription>{item.description}</CardDescription>
-              </CardHeader>
-            </Card>
-          ))}
+
+        {/* Content column */}
+        <div className="animate-fade-up" style={{ animationDelay: '150ms' }}>
+          <Badge variant="outline" className="mb-4">
+            Nuts Economy
+          </Badge>
+          <h2 className="text-3xl font-bold md:text-4xl">
+            Fair sharing,{' '}
+            <span className="text-nuts">built in.</span>
+          </h2>
+          <p className="mt-3 mb-8 text-muted-foreground">
+            A simple currency that keeps sharing balanced
+          </p>
+
+          <div className="divide-y divide-dashed">
+            {items.map((item) => (
+              <div key={item.label} className="flex items-start gap-4 py-4">
+                <div
+                  className={`flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                    item.positive
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-red-100 text-red-700'
+                  }`}
+                >
+                  {item.amount}
+                </div>
+                <div>
+                  <p className="font-semibold">{item.label}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
