@@ -110,9 +110,12 @@ export function useJoinCircle() {
 
   return useMutation({
     mutationFn: async ({ circleId }: { circleId: string }) => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
       const { error } = await supabase
         .from('circle_members')
-        .insert({ circle_id: circleId, user_id: (await supabase.auth.getUser()).data.user!.id })
+        .insert({ circle_id: circleId, user_id: user.id })
 
       if (error) {
         // Unique constraint violation — already a member
@@ -133,12 +136,14 @@ export function useLeaveCircle() {
 
   return useMutation({
     mutationFn: async ({ circleId }: { circleId: string }) => {
-      const userId = (await supabase.auth.getUser()).data.user!.id
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
       const { error } = await supabase
         .from('circle_members')
         .delete()
         .eq('circle_id', circleId)
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
 
       if (error) throw error
     },

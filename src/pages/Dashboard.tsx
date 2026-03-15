@@ -17,6 +17,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { ActivityHeatmap } from '@/components/dashboard/ActivityHeatmap'
 import { ToolCard } from '@/components/tools/ToolCard'
 import { CircleCard } from '@/components/circles/CircleCard'
+import { getInitials } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 import { useMyTools } from '@/hooks/useTools'
@@ -24,15 +25,6 @@ import { useCircles } from '@/hooks/useCircles'
 import { useIncomingRequests, useOutgoingRequests } from '@/hooks/useBorrowRequests'
 import { useNutsBalance } from '@/hooks/useNuts'
 import type { BorrowRequestWithDetails } from '@/hooks/useBorrowRequests'
-
-function getInitials(name: string) {
-  return name
-    .split(' ')
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
-}
 
 function timeAgo(dateStr: string) {
   const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)

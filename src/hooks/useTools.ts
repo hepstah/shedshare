@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { escapeLikePattern } from '@/lib/utils'
 import type {
   Tool,
   ToolCategory,
@@ -72,7 +73,7 @@ export function useSearchTools(query: string) {
       const { data, error } = await supabase
         .from('tools')
         .select('*, tool_categories(*)')
-        .ilike('name', `%${query}%`)
+        .ilike('name', `%${escapeLikePattern(query)}%`)
         .order('name')
         .limit(50)
 

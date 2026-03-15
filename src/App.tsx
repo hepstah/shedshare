@@ -1,129 +1,55 @@
-import { Routes, Route } from 'react-router-dom'
-import { AppShell } from '@/components/layout/AppShell'
-import { AuthGuard } from '@/components/auth/AuthGuard'
-import { Landing } from '@/pages/Landing'
-import { Login } from '@/pages/Login'
-import { Dashboard } from '@/pages/Dashboard'
-import { MyTools } from '@/pages/MyTools'
-import { AddTool } from '@/pages/AddTool'
-import { ToolDetailPage } from '@/pages/ToolDetailPage'
-import { EditTool } from '@/pages/EditTool'
-import { CirclesPage } from '@/pages/CirclesPage'
-import { CircleDetailPage } from '@/pages/CircleDetailPage'
-import { SearchPage } from '@/pages/SearchPage'
-import { RequestsPage } from '@/pages/RequestsPage'
-import { ProfilePage } from '@/pages/ProfilePage'
-import { JoinCirclePage } from '@/pages/JoinCirclePage'
+import { lazy, Suspense } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
+
+const Landing = lazy(() => import('@/pages/Landing').then(m => ({ default: m.Landing })))
+const Login = lazy(() => import('@/pages/Login').then(m => ({ default: m.Login })))
+const JoinCirclePage = lazy(() => import('@/pages/JoinCirclePage').then(m => ({ default: m.JoinCirclePage })))
+const Dashboard = lazy(() => import('@/pages/Dashboard').then(m => ({ default: m.Dashboard })))
+const MyTools = lazy(() => import('@/pages/MyTools').then(m => ({ default: m.MyTools })))
+const AddTool = lazy(() => import('@/pages/AddTool').then(m => ({ default: m.AddTool })))
+const ToolDetailPage = lazy(() => import('@/pages/ToolDetailPage').then(m => ({ default: m.ToolDetailPage })))
+const EditTool = lazy(() => import('@/pages/EditTool').then(m => ({ default: m.EditTool })))
+const CirclesPage = lazy(() => import('@/pages/CirclesPage').then(m => ({ default: m.CirclesPage })))
+const CircleDetailPage = lazy(() => import('@/pages/CircleDetailPage').then(m => ({ default: m.CircleDetailPage })))
+const SearchPage = lazy(() => import('@/pages/SearchPage').then(m => ({ default: m.SearchPage })))
+const RequestsPage = lazy(() => import('@/pages/RequestsPage').then(m => ({ default: m.RequestsPage })))
+const ProfilePage = lazy(() => import('@/pages/ProfilePage').then(m => ({ default: m.ProfilePage })))
+
+function PageLoader() {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="text-muted-foreground">Loading...</div>
+    </div>
+  )
+}
 
 export function App() {
   return (
-    <Routes>
-      {/* Public routes */}
-      <Route path="/" element={<Landing />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/join/:inviteCode" element={<JoinCirclePage />} />
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/join/:inviteCode" element={<JoinCirclePage />} />
 
-      {/* Protected routes */}
-      <Route
-        path="/dashboard"
-        element={
-          <AuthGuard>
-            <AppShell>
-              <Dashboard />
-            </AppShell>
-          </AuthGuard>
-        }
-      />
-      <Route
-        path="/tools"
-        element={
-          <AuthGuard>
-            <AppShell>
-              <MyTools />
-            </AppShell>
-          </AuthGuard>
-        }
-      />
-      <Route
-        path="/tools/add"
-        element={
-          <AuthGuard>
-            <AppShell>
-              <AddTool />
-            </AppShell>
-          </AuthGuard>
-        }
-      />
-      <Route
-        path="/tools/:toolId"
-        element={
-          <AuthGuard>
-            <AppShell>
-              <ToolDetailPage />
-            </AppShell>
-          </AuthGuard>
-        }
-      />
-      <Route
-        path="/tools/:toolId/edit"
-        element={
-          <AuthGuard>
-            <AppShell>
-              <EditTool />
-            </AppShell>
-          </AuthGuard>
-        }
-      />
-      <Route
-        path="/circles"
-        element={
-          <AuthGuard>
-            <AppShell>
-              <CirclesPage />
-            </AppShell>
-          </AuthGuard>
-        }
-      />
-      <Route
-        path="/circles/:circleId"
-        element={
-          <AuthGuard>
-            <AppShell>
-              <CircleDetailPage />
-            </AppShell>
-          </AuthGuard>
-        }
-      />
-      <Route
-        path="/search"
-        element={
-          <AuthGuard>
-            <AppShell>
-              <SearchPage />
-            </AppShell>
-          </AuthGuard>
-        }
-      />
-      <Route
-        path="/requests"
-        element={
-          <AuthGuard>
-            <AppShell>
-              <RequestsPage />
-            </AppShell>
-          </AuthGuard>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <AuthGuard>
-            <AppShell>
-              <ProfilePage />
-            </AppShell>
-          </AuthGuard>
-        }
-      />
-    </Routes>
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/tools" element={<MyTools />} />
+          <Route path="/tools/add" element={<AddTool />} />
+          <Route path="/tools/:toolId" element={<ToolDetailPage />} />
+          <Route path="/tools/:toolId/edit" element={<EditTool />} />
+          <Route path="/circles" element={<CirclesPage />} />
+          <Route path="/circles/:circleId" element={<CircleDetailPage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/requests" element={<RequestsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+        </Route>
+
+        {/* 404 catch-all */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   )
 }

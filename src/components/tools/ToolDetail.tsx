@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { ToolStatusBadge } from './ToolStatusBadge'
 import { CategoryIcon } from './CategoryIcon'
 import { BorrowRequestButton } from './BorrowRequestButton'
+import { useCircles } from '@/hooks/useCircles'
 import type { ToolWithDetails } from '@/types'
 
 interface ToolDetailProps {
@@ -11,6 +12,8 @@ interface ToolDetailProps {
 }
 
 export function ToolDetail({ tool, isOwner }: ToolDetailProps) {
+  const { data: circles } = useCircles()
+
   return (
     <div className="space-y-6">
       {/* Photo */}
@@ -86,8 +89,14 @@ export function ToolDetail({ tool, isOwner }: ToolDetailProps) {
       </div>
 
       {/* Borrow button (non-owner, available) */}
-      {!isOwner && tool.status === 'available' && (
-        <BorrowRequestButton toolId={tool.id} lenderId={tool.owner_id} />
+      {!isOwner && tool.status === 'available' && circles && (
+        <BorrowRequestButton
+          toolId={tool.id}
+          lenderId={tool.owner_id}
+          nutsCost={tool.nuts_cost}
+          circleListings={tool.tool_circle_listings}
+          circles={circles}
+        />
       )}
     </div>
   )

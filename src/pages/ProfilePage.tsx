@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Camera, LogOut, Nut } from 'lucide-react'
 import { toast } from 'sonner'
@@ -10,19 +10,11 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { NutsHistory } from '@/components/nuts/NutsHistory'
+import { getInitials } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile, useUpdateProfile, useUploadAvatar } from '@/hooks/useProfile'
 import { useNutsBalance, useNutsTransactions } from '@/hooks/useNuts'
 import type { NotificationPrefs } from '@/types'
-
-function getInitials(name: string) {
-  return name
-    .split(' ')
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
-}
 
 export function ProfilePage() {
   const navigate = useNavigate()
@@ -40,11 +32,13 @@ export function ProfilePage() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
   // Initialize form state once profile loads
-  if (profile && !nameInit) {
-    setDisplayName(profile.display_name)
-    setPhone(profile.phone ?? '')
-    setNameInit(true)
-  }
+  useEffect(() => {
+    if (profile && !nameInit) {
+      setDisplayName(profile.display_name)
+      setPhone(profile.phone ?? '')
+      setNameInit(true)
+    }
+  }, [profile, nameInit])
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

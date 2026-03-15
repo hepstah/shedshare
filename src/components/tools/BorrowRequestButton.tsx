@@ -20,26 +20,33 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { useCreateBorrowRequest } from '@/hooks/useBorrowRequests'
-import { useTool } from '@/hooks/useTools'
-import { useCircles } from '@/hooks/useCircles'
+import type { ToolCircleListing } from '@/types'
+import type { CircleWithCount } from '@/hooks/useCircles'
 
 interface BorrowRequestButtonProps {
   toolId: string
   lenderId: string
+  nutsCost: number
+  circleListings: ToolCircleListing[]
+  circles: CircleWithCount[]
 }
 
-export function BorrowRequestButton({ toolId, lenderId }: BorrowRequestButtonProps) {
+export function BorrowRequestButton({
+  toolId,
+  lenderId,
+  nutsCost,
+  circleListings,
+  circles,
+}: BorrowRequestButtonProps) {
   const [open, setOpen] = useState(false)
   const [circleId, setCircleId] = useState('')
   const [message, setMessage] = useState('')
   const [dueDate, setDueDate] = useState('')
   const createRequest = useCreateBorrowRequest()
-  const { data: tool } = useTool(toolId)
-  const { data: circles } = useCircles()
 
   // Filter circles to only those where this tool is listed
-  const availableCircles = circles?.filter((c) =>
-    tool?.tool_circle_listings?.some((l) => l.circle_id === c.id),
+  const availableCircles = circles.filter((c) =>
+    circleListings.some((l) => l.circle_id === c.id),
   )
 
   const handleSubmit = () => {
@@ -55,7 +62,7 @@ export function BorrowRequestButton({ toolId, lenderId }: BorrowRequestButtonPro
         circle_id: circleId,
         message: message.trim() || undefined,
         due_date: dueDate || undefined,
-        nuts_amount: tool?.nuts_cost ?? 1,
+        nuts_amount: nutsCost,
       },
       {
         onSuccess: () => {
@@ -93,7 +100,7 @@ export function BorrowRequestButton({ toolId, lenderId }: BorrowRequestButtonPro
                 <SelectValue placeholder="Select a circle" />
               </SelectTrigger>
               <SelectContent>
-                {availableCircles?.map((circle) => (
+                {availableCircles.map((circle) => (
                   <SelectItem key={circle.id} value={circle.id}>
                     {circle.name}
                   </SelectItem>
