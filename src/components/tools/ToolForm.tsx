@@ -70,6 +70,7 @@ export function ToolForm({ mode = 'add', initialData, onSuccess }: ToolFormProps
     try {
       const url = await uploadPhoto.mutateAsync(file)
       setPhotoUrl(url)
+      setPhotoPreview(url)
     } catch {
       toast.error('Failed to upload photo.')
       setPhotoPreview(photoUrl) // revert preview
