@@ -70,7 +70,7 @@ export function FeaturesSection() {
           <Badge variant="outline" className="mb-4">
             Features
           </Badge>
-          <h2 className="text-3xl font-bold md:text-4xl">
+          <h2 className="font-display text-3xl font-bold md:text-4xl">
             Built for Real Neighbors
           </h2>
           <p className="mt-3 text-muted-foreground">

@@ -3,54 +3,65 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-background: hsl(0 0% 100%);
-  --color-foreground: hsl(240 10% 3.9%);
+  /* Typography */
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
 
-  --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(240 10% 3.9%);
+  /* Warm palette — deep brown primary, cream backgrounds, golden accents */
+  --color-background: hsl(36 33% 97%);
+  --color-foreground: hsl(28 25% 12%);
 
-  --color-popover: hsl(0 0% 100%);
-  --color-popover-foreground: hsl(240 10% 3.9%);
+  --color-card: hsl(39 40% 99%);
+  --color-card-foreground: hsl(28 25% 12%);
 
-  --color-primary: hsl(240 5.9% 10%);
-  --color-primary-foreground: hsl(0 0% 98%);
+  --color-popover: hsl(39 40% 99%);
+  --color-popover-foreground: hsl(28 25% 12%);
 
-  --color-secondary: hsl(30 10% 95.9%);
-  --color-secondary-foreground: hsl(240 5.9% 10%);
+  --color-primary: hsl(28 35% 18%);
+  --color-primary-foreground: hsl(36 40% 96%);
 
-  --color-muted: hsl(30 8% 95.9%);
-  --color-muted-foreground: hsl(30 5% 44%);
+  --color-secondary: hsl(34 25% 93%);
+  --color-secondary-foreground: hsl(28 25% 18%);
 
-  --color-accent: hsl(30 8% 95.9%);
-  --color-accent-foreground: hsl(240 5.9% 10%);
+  --color-muted: hsl(34 20% 93%);
+  --color-muted-foreground: hsl(28 12% 48%);
 
-  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-accent: hsl(34 25% 90%);
+  --color-accent-foreground: hsl(28 25% 18%);
+
+  --color-destructive: hsl(0 72% 51%);
   --color-destructive-foreground: hsl(0 0% 98%);
 
-  --color-border: hsl(30 8% 90%);
-  --color-input: hsl(30 8% 90%);
-  --color-ring: hsl(240 5.9% 10%);
+  --color-border: hsl(32 18% 86%);
+  --color-input: hsl(32 18% 86%);
+  --color-ring: hsl(28 35% 18%);
 
+  /* App-specific colors */
   --color-nuts: hsl(38 92% 50%);
   --color-nuts-foreground: hsl(26 83% 14%);
-  --color-available: hsl(142 71% 45%);
-  --color-available-foreground: hsl(144 61% 10%);
+  --color-available: hsl(152 56% 42%);
+  --color-available-foreground: hsl(154 61% 10%);
+  --color-warm-teal: hsl(172 35% 42%);
+  --color-warm-teal-foreground: hsl(172 45% 96%);
 
-  --radius-sm: 0.25rem;
+  /* Friendlier radius */
+  --radius-sm: 0.375rem;
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --radius: 0.75rem;
+  --radius: 0.875rem;
 
-  --animate-fade-up: fade-up 0.6s ease-out both;
+  /* Animations */
+  --animate-fade-up: fade-up 0.6s cubic-bezier(0.34, 1.4, 0.64, 1) both;
   --animate-fade-in: fade-in 0.5s ease-out both;
-  --animate-scale-in: scale-in 0.4s ease-out both;
+  --animate-scale-in: scale-in 0.4s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  --animate-wiggle: wiggle 0.5s ease-in-out;
 }
 
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -70,12 +81,18 @@
 @keyframes scale-in {
   from {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.92);
   }
   to {
     opacity: 1;
     transform: scale(1);
   }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
 }
 
 @layer base {
@@ -86,8 +103,31 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
     margin: 0;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Display font for headings */
+  h1, h2, h3 {
+    font-family: var(--font-display);
+  }
+
+  /* Subtle background texture */
+  #root {
+    position: relative;
+  }
+  #root::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
   }
 }

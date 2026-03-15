@@ -14,7 +14,7 @@ export function FooterCTA() {
         />
         <div className="absolute inset-0 bg-primary/85" />
         <div className="container relative mx-auto max-w-2xl text-center text-primary-foreground">
-          <h2 className="text-3xl font-bold md:text-4xl animate-fade-up">
+          <h2 className="font-display text-3xl font-bold md:text-4xl animate-fade-up">
             Ready to share smarter?
           </h2>
           <p className="mt-4 text-primary-foreground/80 animate-fade-up" style={{ animationDelay: '100ms' }}>
@@ -36,7 +36,7 @@ export function FooterCTA() {
       {/* Footer */}
       <footer className="border-t px-4 py-8">
         <div className="container mx-auto flex flex-col items-center gap-6 text-sm text-muted-foreground sm:flex-row sm:justify-between">
-          <div className="flex items-center gap-2 font-semibold text-foreground">
+          <div className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-foreground">
             <Wrench className="size-4 text-nuts" />
             ShedShare
           </div>

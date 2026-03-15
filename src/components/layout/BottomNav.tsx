@@ -14,23 +14,31 @@ export function BottomNav() {
   const location = useLocation()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur md:hidden">
       <div className="flex items-center justify-around py-2">
-        {navItems.map((item) => (
-          <Link
-            key={item.to}
-            to={item.to}
-            className={cn(
-              'flex flex-col items-center gap-1 px-3 py-1 text-xs',
-              location.pathname === item.to
-                ? 'text-primary'
-                : 'text-muted-foreground',
-            )}
-          >
-            <item.icon className="h-5 w-5" />
-            <span>{item.label}</span>
-          </Link>
-        ))}
+        {navItems.map((item) => {
+          const active = location.pathname === item.to
+          return (
+            <Link
+              key={item.to}
+              to={item.to}
+              className={cn(
+                'flex flex-col items-center gap-1 px-3 py-1 text-xs transition-colors',
+                active
+                  ? 'text-nuts-foreground'
+                  : 'text-muted-foreground',
+              )}
+            >
+              <div className={cn(
+                'flex items-center justify-center rounded-full p-1.5 transition-all',
+                active && 'bg-nuts/15',
+              )}>
+                <item.icon className={cn('h-5 w-5', active && 'text-nuts')} />
+              </div>
+              <span className={cn(active && 'font-medium')}>{item.label}</span>
+            </Link>
+          )
+        })}
       </div>
     </nav>
   )

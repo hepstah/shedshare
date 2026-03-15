@@ -39,9 +39,9 @@ export function NutsSection() {
           <Badge variant="outline" className="mb-4">
             Nuts Economy
           </Badge>
-          <h2 className="text-3xl font-bold md:text-4xl">
+          <h2 className="font-display text-3xl font-bold md:text-4xl">
             Fair sharing,{' '}
-            <span className="text-nuts">built in.</span>
+            <span className="text-nuts italic">built in.</span>
           </h2>
           <p className="mt-3 mb-8 text-muted-foreground">
             A simple currency that keeps sharing balanced

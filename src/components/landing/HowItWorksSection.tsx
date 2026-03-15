@@ -36,7 +36,7 @@ export function HowItWorksSection() {
           <Badge variant="outline" className="mb-4">
             4 Simple Steps
           </Badge>
-          <h2 className="text-3xl font-bold md:text-4xl">How It Works</h2>
+          <h2 className="font-display text-3xl font-bold md:text-4xl">How It Works</h2>
           <p className="mt-3 text-muted-foreground">
             Four steps to sharing smarter
           </p>

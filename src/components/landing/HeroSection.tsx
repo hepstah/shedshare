@@ -13,10 +13,10 @@ export function HeroSection() {
             <Star className="size-3.5 fill-nuts text-nuts" />
             Trusted by 500+ neighborhoods
           </Badge>
-          <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
+          <h1 className="font-display text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
             Share tools,
             <br />
-            <span className="text-nuts">not expenses.</span>
+            <span className="text-nuts italic">not expenses.</span>
           </h1>
           <p className="max-w-lg text-lg text-muted-foreground">
             Borrow tools from your friends, lend yours when you're not using them,

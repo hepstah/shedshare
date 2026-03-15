@@ -16,7 +16,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-2 font-bold text-lg">
+        <Link to="/" className="flex items-center gap-2 font-display text-xl font-bold tracking-tight">
           <Wrench className="size-5 text-nuts" />
           ShedShare
         </Link>
