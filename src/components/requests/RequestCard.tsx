@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { RequestActions } from './RequestActions'
+import { getInitials, timeAgo } from '@/lib/utils'
 import type { BorrowRequestWithDetails } from '@/hooks/useBorrowRequests'
 
 const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
@@ -13,27 +14,6 @@ const statusConfig: Record<string, { label: string; variant: 'default' | 'second
   handed_off: { label: 'Handed Off', variant: 'secondary' },
   returned: { label: 'Returned', variant: 'default' },
   cancelled: { label: 'Cancelled', variant: 'destructive' },
-}
-
-function timeAgo(dateStr: string) {
-  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
-  if (seconds < 60) return 'just now'
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.floor(hours / 24)
-  if (days < 7) return `${days}d ago`
-  return new Date(dateStr).toLocaleDateString()
-}
-
-function getInitials(name: string) {
-  return name
-    .split(' ')
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
 }
 
 interface RequestCardProps {

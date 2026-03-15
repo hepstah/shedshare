@@ -46,9 +46,10 @@ export function ProfilePage() {
     if (!file) return
 
     const previousPreview = avatarPreview ?? profile?.avatar_url ?? null
+    const blobUrl = URL.createObjectURL(file)
 
     // Show local preview immediately
-    setAvatarPreview(URL.createObjectURL(file))
+    setAvatarPreview(blobUrl)
 
     try {
       const url = await uploadAvatar.mutateAsync(file)
@@ -58,6 +59,8 @@ export function ProfilePage() {
     } catch (err) {
       setAvatarPreview(previousPreview) // revert preview
       toast.error(err instanceof Error ? err.message : 'Failed to upload avatar.')
+    } finally {
+      URL.revokeObjectURL(blobUrl)
     }
 
     // Reset input so same file can be re-selected
@@ -149,6 +152,7 @@ export function ProfilePage() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
+            aria-label="Change avatar"
             className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
           >
             <Camera className="h-4 w-4" />

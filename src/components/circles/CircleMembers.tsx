@@ -1,20 +1,12 @@
 import { Crown } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { getInitials } from '@/lib/utils'
 import type { MemberWithProfile } from '@/hooks/useCircles'
 
 interface CircleMembersProps {
   members: MemberWithProfile[]
   currentUserId: string | undefined
-}
-
-function getInitials(name: string) {
-  return name
-    .split(' ')
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
 }
 
 export function CircleMembers({ members, currentUserId }: CircleMembersProps) {

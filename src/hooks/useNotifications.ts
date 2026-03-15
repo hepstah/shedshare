@@ -19,6 +19,7 @@ export function useNotifications() {
       if (error) throw error
       return data as Notification[]
     },
+    refetchInterval: 30000, // poll every 30s, same as unread count
   })
 }
 

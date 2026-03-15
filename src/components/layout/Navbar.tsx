@@ -26,7 +26,7 @@ export function Navbar() {
           <button
             onClick={handleSignOut}
             className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground"
-            title="Sign out"
+            aria-label="Sign out"
           >
             <LogOut className="h-5 w-5" />
           </button>

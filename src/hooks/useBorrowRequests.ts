@@ -25,7 +25,7 @@ export function useIncomingRequests() {
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      return data as unknown as BorrowRequestWithDetails[]
+      return (data ?? []) as BorrowRequestWithDetails[]
     },
   })
 }
@@ -44,7 +44,7 @@ export function useOutgoingRequests() {
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      return data as unknown as BorrowRequestWithDetails[]
+      return (data ?? []) as BorrowRequestWithDetails[]
     },
   })
 }

@@ -19,7 +19,7 @@ export function useCircles() {
       return (data ?? []).map((c) => ({
         ...c,
         circle_members: undefined,
-        memberCount: (c.circle_members as unknown as { count: number }[])?.[0]?.count ?? 0,
+        memberCount: (c.circle_members as { count: number }[])?.[0]?.count ?? 0,
       })) as CircleWithCount[]
     },
   })

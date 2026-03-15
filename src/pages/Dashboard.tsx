@@ -17,7 +17,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { ActivityHeatmap } from '@/components/dashboard/ActivityHeatmap'
 import { ToolCard } from '@/components/tools/ToolCard'
 import { CircleCard } from '@/components/circles/CircleCard'
-import { getInitials } from '@/lib/utils'
+import { getInitials, timeAgo } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 import { useMyTools } from '@/hooks/useTools'
@@ -26,18 +26,6 @@ import { useIncomingRequests, useOutgoingRequests } from '@/hooks/useBorrowReque
 import { useNutsBalance } from '@/hooks/useNuts'
 import { useVibe } from '@/vibe/useVibe'
 import type { BorrowRequestWithDetails } from '@/hooks/useBorrowRequests'
-
-function timeAgo(dateStr: string) {
-  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
-  if (seconds < 60) return 'just now'
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.floor(hours / 24)
-  if (days < 7) return `${days}d ago`
-  return new Date(dateStr).toLocaleDateString()
-}
 
 // Status labels are functional — same across all vibes
 const statusLabels: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {

@@ -27,6 +27,7 @@ export function NotificationBell() {
       <button
         className="relative rounded-md p-2 hover:bg-accent"
         onClick={() => setOpen(!open)}
+        aria-label={`Notifications${(unreadCount ?? 0) > 0 ? ` (${unreadCount} unread)` : ''}`}
       >
         <Bell className="h-5 w-5" />
         {(unreadCount ?? 0) > 0 && (

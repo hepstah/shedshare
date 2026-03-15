@@ -41,7 +41,7 @@ export function useTool(toolId: string | undefined) {
         .single()
 
       if (error) throw error
-      return data as unknown as ToolWithDetails
+      return data as ToolWithDetails
     },
     enabled: !!toolId,
   })
