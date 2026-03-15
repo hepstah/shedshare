@@ -91,6 +91,16 @@ export function ToolForm({ mode = 'add', initialData, onSuccess }: ToolFormProps
       return
     }
 
+    if (nutsCost < 1) {
+      toast.error('Nuts cost must be at least 1.')
+      return
+    }
+
+    if (selectedCircleIds.length === 0) {
+      toast.error('Select at least one circle to list your tool in.')
+      return
+    }
+
     const payload = {
       name: name.trim(),
       description: description.trim() || undefined,
@@ -212,7 +222,7 @@ export function ToolForm({ mode = 'add', initialData, onSuccess }: ToolFormProps
         <Input
           id="tool-nuts"
           type="number"
-          min={0}
+          min={1}
           value={nutsCost}
           onChange={(e) => setNutsCost(Number(e.target.value))}
         />

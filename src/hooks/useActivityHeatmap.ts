@@ -16,10 +16,11 @@ export function useActivityHeatmap() {
       const oneYearAgo = new Date()
       oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
 
-      const { data, error } = await supabase.rpc('get_activity_heatmap', {
+      // RPC may not exist yet — fallback below handles that case
+      const { data, error } = await (supabase.rpc as CallableFunction)('get_activity_heatmap', {
         p_user_id: user.id,
         p_since: oneYearAgo.toISOString(),
-      })
+      }) as { data: ActivityDay[] | null; error: { message: string } | null }
 
       if (error) {
         // Fallback to client-side aggregation if RPC doesn't exist yet

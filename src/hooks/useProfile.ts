@@ -17,7 +17,7 @@ export function useUploadAvatar() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
-      const ext = file.name.split('.').pop() ?? 'jpg'
+      const ext = file.type.split('/')[1] || 'jpg'
       const path = `${user.id}/${crypto.randomUUID()}.${ext}`
 
       const { error } = await supabase.storage
@@ -52,7 +52,7 @@ export function useProfile() {
         .single()
 
       if (error) throw error
-      return data as Profile
+      return data as unknown as Profile
     },
   })
 }
@@ -72,12 +72,13 @@ export function useUpdateProfile() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
+      const updatePayload: Record<string, unknown> = {
+        ...input,
+        updated_at: new Date().toISOString(),
+      }
       const { data, error } = await supabase
         .from('profiles')
-        .update({
-          ...input,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updatePayload)
         .eq('id', user.id)
         .select()
         .single()

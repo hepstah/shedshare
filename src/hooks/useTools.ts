@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { escapeLikePattern } from '@/lib/utils'
 import type {
-  Tool,
   ToolCategory,
   ToolWithCategory,
   ToolWithDetails,
@@ -25,7 +24,7 @@ export function useMyTools() {
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      return data as ToolWithCategory[]
+      return (data ?? []) as ToolWithCategory[]
     },
   })
 }
@@ -59,8 +58,8 @@ export function useCircleTools(circleId: string | undefined) {
       if (error) throw error
 
       return (data ?? [])
-        .map((row) => (row as unknown as { tools: ToolWithCategory }).tools)
-        .filter(Boolean)
+        .map((row) => row.tools)
+        .filter(Boolean) as ToolWithCategory[]
     },
     enabled: !!circleId,
   })
@@ -78,7 +77,7 @@ export function useSearchTools(query: string) {
         .limit(50)
 
       if (error) throw error
-      return data as ToolWithCategory[]
+      return (data ?? []) as ToolWithCategory[]
     },
     enabled: query.length >= 2,
   })
@@ -94,7 +93,7 @@ export function useToolCategories() {
         .order('sort_order')
 
       if (error) throw error
-      return data as ToolCategory[]
+      return (data ?? []) as ToolCategory[]
     },
     staleTime: 1000 * 60 * 60, // 1 hour
   })
@@ -108,7 +107,7 @@ export function useUploadToolPhoto() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
-      const ext = file.name.split('.').pop() ?? 'jpg'
+      const ext = file.type.split('/')[1] || 'jpg'
       const path = `${user.id}/${crypto.randomUUID()}.${ext}`
 
       const { error } = await supabase.storage
@@ -144,15 +143,15 @@ export function useCreateTool() {
     mutationFn: async (input: CreateToolInput) => {
       const { data, error } = await supabase.rpc('create_tool_with_listings', {
         p_name: input.name,
-        p_description: input.description ?? null,
-        p_category_id: input.category_id ?? null,
-        p_photo_url: input.photo_url ?? null,
+        p_description: input.description,
+        p_category_id: input.category_id,
+        p_photo_url: input.photo_url,
         p_nuts_cost: input.nuts_cost,
         p_circle_ids: input.circle_ids,
       })
 
       if (error) throw error
-      return data as unknown as Tool
+      return data
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['my-tools'] })
@@ -179,15 +178,15 @@ export function useUpdateTool() {
       const { data, error } = await supabase.rpc('update_tool_with_listings', {
         p_tool_id: input.id,
         p_name: input.name,
-        p_description: input.description ?? null,
-        p_category_id: input.category_id ?? null,
-        p_photo_url: input.photo_url ?? null,
+        p_description: input.description,
+        p_category_id: input.category_id,
+        p_photo_url: input.photo_url,
         p_nuts_cost: input.nuts_cost,
         p_circle_ids: input.circle_ids,
       })
 
       if (error) throw error
-      return data as unknown as Tool
+      return data
     },
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['my-tools'] })

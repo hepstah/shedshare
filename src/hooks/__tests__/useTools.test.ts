@@ -64,9 +64,9 @@ describe('useCreateTool', () => {
 
     expect(mockSupabase.rpc).toHaveBeenCalledWith('create_tool_with_listings', {
       p_name: 'Saw',
-      p_description: null,
-      p_category_id: null,
-      p_photo_url: null,
+      p_description: undefined,
+      p_category_id: undefined,
+      p_photo_url: undefined,
       p_nuts_cost: 3,
       p_circle_ids: ['c-1'],
     })

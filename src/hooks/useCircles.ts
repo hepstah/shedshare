@@ -16,11 +16,14 @@ export function useCircles() {
 
       if (error) throw error
 
-      return (data ?? []).map((c) => ({
-        ...c,
-        circle_members: undefined,
-        memberCount: (c.circle_members as { count: number }[])?.[0]?.count ?? 0,
-      })) as CircleWithCount[]
+      return (data ?? []).map((c) => {
+        const members = c.circle_members as unknown as { count: number }[]
+        return {
+          ...c,
+          circle_members: undefined,
+          memberCount: members?.[0]?.count ?? 0,
+        }
+      }) as CircleWithCount[]
     },
   })
 }
@@ -51,7 +54,7 @@ export function useCircle(circleId: string | undefined) {
         .order('joined_at', { ascending: true })
 
       if (error) throw error
-      return data as MemberWithProfile[]
+      return (data ?? []) as unknown as MemberWithProfile[]
     },
     enabled: !!circleId,
   })
@@ -93,7 +96,7 @@ export function useCreateCircle() {
     }) => {
       const { data, error } = await supabase.rpc('create_circle', {
         p_name: name,
-        p_description: description ?? null,
+        p_description: description,
       })
 
       if (error) throw error
