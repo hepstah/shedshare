@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { NutsHistory } from '@/components/nuts/NutsHistory'
+import { VibeSwitcher } from '@/vibe/VibeSwitcher'
 import { getInitials } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile, useUpdateProfile, useUploadAvatar } from '@/hooks/useProfile'
@@ -281,6 +282,9 @@ export function ProfilePage() {
           )}
         </CardContent>
       </Card>
+
+      {/* App vibe */}
+      <VibeSwitcher />
 
       {/* Sign out */}
       <Button variant="outline" className="text-destructive" onClick={handleSignOut}>

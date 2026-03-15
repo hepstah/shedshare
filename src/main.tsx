@@ -8,6 +8,7 @@ import { ErrorFallback } from '@/components/ErrorFallback'
 import { AuthProvider } from '@/hooks/useAuth'
 import './index.css'
 import { App } from './App'
+import { VibePickerDialog } from '@/vibe/VibePickerDialog'
 
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
@@ -35,6 +36,7 @@ createRoot(document.getElementById('root')!).render(
         <AuthProvider>
           <BrowserRouter>
             <App />
+            <VibePickerDialog />
             <Toaster />
           </BrowserRouter>
         </AuthProvider>

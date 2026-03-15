@@ -24,6 +24,7 @@ import { useMyTools } from '@/hooks/useTools'
 import { useCircles } from '@/hooks/useCircles'
 import { useIncomingRequests, useOutgoingRequests } from '@/hooks/useBorrowRequests'
 import { useNutsBalance } from '@/hooks/useNuts'
+import { useVibe } from '@/vibe/useVibe'
 import type { BorrowRequestWithDetails } from '@/hooks/useBorrowRequests'
 
 function timeAgo(dateStr: string) {
@@ -38,6 +39,7 @@ function timeAgo(dateStr: string) {
   return new Date(dateStr).toLocaleDateString()
 }
 
+// Status labels are functional — same across all vibes
 const statusLabels: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
   pending: { label: 'Pending', variant: 'outline' },
   approved: { label: 'Approved', variant: 'default' },
@@ -55,6 +57,7 @@ export function Dashboard() {
   const { data: incoming } = useIncomingRequests()
   const { data: outgoing } = useOutgoingRequests()
   const { data: nutsBalance } = useNutsBalance()
+  const v = useVibe()
 
   const displayName = profile?.display_name
     ?? user?.user_metadata?.full_name
@@ -77,28 +80,28 @@ export function Dashboard() {
 
   const stats = [
     {
-      label: 'My Tools',
+      label: v.dashboard.statMyTools,
       value: toolCount,
       icon: Wrench,
       color: 'bg-blue-100 text-blue-700',
       link: '/tools',
     },
     {
-      label: 'Circles',
+      label: v.dashboard.statCircles,
       value: circleCount,
       icon: Users,
       color: 'bg-green-100 text-green-700',
       link: '/circles',
     },
     {
-      label: 'Lent Out',
+      label: v.dashboard.statLentOut,
       value: lentOut,
       icon: ArrowLeftRight,
       color: 'bg-amber-100 text-amber-700',
       link: '/tools',
     },
     {
-      label: 'Nuts',
+      label: v.dashboard.statNuts,
       value: nutsBalance ?? 0,
       icon: Nut,
       color: 'bg-orange-100 text-orange-700',
@@ -115,9 +118,9 @@ export function Dashboard() {
           <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
         </Avatar>
         <div>
-          <h1 className="text-2xl font-bold">Hey, {displayName}!</h1>
+          <h1 className="text-2xl font-bold">{v.dashboard.greeting(displayName)}</h1>
           <p className="text-sm text-muted-foreground">
-            Here's what's happening in your shed.
+            {v.dashboard.subtitle}
           </p>
         </div>
       </div>
@@ -155,15 +158,15 @@ export function Dashboard() {
             </div>
             <div className="flex-1">
               <p className="font-semibold">
-                {pendingIncoming} pending request{pendingIncoming !== 1 ? 's' : ''}
+                {v.dashboard.pendingRequests(pendingIncoming)}
               </p>
               <p className="text-sm text-muted-foreground">
-                Someone wants to borrow your tools
+                {v.dashboard.pendingSubtext}
               </p>
             </div>
             <Button asChild size="sm">
               <Link to="/requests">
-                Review
+                {v.dashboard.reviewButton}
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>
@@ -174,10 +177,10 @@ export function Dashboard() {
       {/* Recent activity */}
       <section>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Recent Activity</h2>
+          <h2 className="text-lg font-semibold">{v.dashboard.recentActivity}</h2>
           <Button asChild variant="ghost" size="sm">
             <Link to="/requests" className="text-muted-foreground">
-              View all
+              {v.dashboard.viewAll}
               <ChevronRight className="ml-1 h-4 w-4" />
             </Link>
           </Button>
@@ -197,8 +200,8 @@ export function Dashboard() {
                 }
                 const action =
                   req.direction === 'in'
-                    ? `${personName} wants to borrow`
-                    : `You requested`
+                    ? v.dashboard.wantsToBorrow(personName)
+                    : v.dashboard.youRequested
 
                 return (
                   <Link
@@ -236,7 +239,7 @@ export function Dashboard() {
             <CardContent className="flex flex-col items-center gap-2 py-8 text-center">
               <Clock className="h-8 w-8 text-muted-foreground/40" />
               <p className="text-sm text-muted-foreground">
-                No activity yet — lend or borrow a tool to get started!
+                {v.dashboard.noActivity}
               </p>
             </CardContent>
           </Card>
@@ -246,10 +249,10 @@ export function Dashboard() {
       {/* Your tools preview */}
       <section>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Your Tools</h2>
+          <h2 className="text-lg font-semibold">{v.dashboard.yourTools}</h2>
           <Button asChild variant="ghost" size="sm">
             <Link to="/tools" className="text-muted-foreground">
-              View all
+              {v.dashboard.viewAll}
               <ChevronRight className="ml-1 h-4 w-4" />
             </Link>
           </Button>
@@ -266,15 +269,15 @@ export function Dashboard() {
             <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
               <Wrench className="h-8 w-8 text-muted-foreground/40" />
               <div>
-                <p className="font-medium">No tools yet</p>
+                <p className="font-medium">{v.dashboard.noToolsTitle}</p>
                 <p className="text-sm text-muted-foreground">
-                  Share your first tool with your circles
+                  {v.dashboard.noToolsSubtext}
                 </p>
               </div>
               <Button asChild size="sm">
                 <Link to="/tools/add">
                   <Plus className="mr-1 h-4 w-4" />
-                  Add your first tool
+                  {v.dashboard.addFirstTool}
                 </Link>
               </Button>
             </CardContent>
@@ -285,10 +288,10 @@ export function Dashboard() {
       {/* Your circles preview */}
       <section>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Your Circles</h2>
+          <h2 className="text-lg font-semibold">{v.dashboard.yourCircles}</h2>
           <Button asChild variant="ghost" size="sm">
             <Link to="/circles" className="text-muted-foreground">
-              View all
+              {v.dashboard.viewAll}
               <ChevronRight className="ml-1 h-4 w-4" />
             </Link>
           </Button>
@@ -305,15 +308,15 @@ export function Dashboard() {
             <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
               <Users className="h-8 w-8 text-muted-foreground/40" />
               <div>
-                <p className="font-medium">No circles yet</p>
+                <p className="font-medium">{v.dashboard.noCirclesTitle}</p>
                 <p className="text-sm text-muted-foreground">
-                  Create or join a circle to start sharing
+                  {v.dashboard.noCirclesSubtext}
                 </p>
               </div>
               <Button asChild variant="outline" size="sm">
                 <Link to="/circles">
                   <Users className="mr-1 h-4 w-4" />
-                  Create or join a circle
+                  {v.dashboard.createOrJoinCircle}
                 </Link>
               </Button>
             </CardContent>
@@ -323,24 +326,24 @@ export function Dashboard() {
 
       {/* Quick actions */}
       <section>
-        <h2 className="mb-3 text-lg font-semibold">Quick Actions</h2>
+        <h2 className="mb-3 text-lg font-semibold">{v.dashboard.quickActions}</h2>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline" className="rounded-full">
             <Link to="/tools/add">
               <Plus className="mr-1 h-4 w-4" />
-              Add a Tool
+              {v.dashboard.addATool}
             </Link>
           </Button>
           <Button asChild variant="outline" className="rounded-full">
             <Link to="/search">
               <Search className="mr-1 h-4 w-4" />
-              Find a Tool
+              {v.dashboard.findATool}
             </Link>
           </Button>
           <Button asChild variant="outline" className="rounded-full">
             <Link to="/circles">
               <Users className="mr-1 h-4 w-4" />
-              My Circles
+              {v.dashboard.myCircles}
             </Link>
           </Button>
         </div>
