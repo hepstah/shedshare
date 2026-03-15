@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     loading,
     signInWithGoogle: () =>
-      supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } }),
+      supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo, queryParams: { prompt: 'select_account' } } }),
     signInWithApple: () =>
       supabase.auth.signInWithOAuth({ provider: 'apple', options: { redirectTo } }),
     signInWithEmail: (email: string, password: string) =>
